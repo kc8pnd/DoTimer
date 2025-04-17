@@ -4,8 +4,8 @@
 
 DoTimer_Settings = {} --table for user-defined settings
 DoTimer_DebugChannel = nil --for debugging purposes
-local version = "1.1.3" --for the help command
-local date_uploaded = "September 29, 2006" --for the help command
+local version = "1.1.6" --for the help command
+local date_uploaded = "April 17, 2025" --for the help command
 local Old_CSBN,Old_CS,Old_UA,loaded,class,preventingimmol --random variables i use
 local lasttarget = {} --a table holding data for my last target
 local casted = {} --governs the currently casted debuffs.  entries are 1-10 targets, which in turn are 1-20 debuffs and the target name
@@ -38,24 +38,34 @@ local GHOST_ALPHA = .5 --amt. ghost timers are dimmed
 ------------------------------------------------------------------------------------------------------------
 
 function DoTimer_ReturnEnglish(spellname) --returns the english name of the spell
+	--DoTimer_Debug("DoTimer_ReturnEnglish spellname = "..spellname)
 	local tables = {BOOKTYPE_SPELL,BOOKTYPE_PET}
 	local english,texture
 	for index,value in ipairs(tables) do
+		
 		local i = 1
 		while GetSpellName(i,value) do
 			local spell = GetSpellName(i,value)
+			--DoTimer_Debug("DoTimer_ReturnEnglish"..spell)
 			if spell == spellname then 
 				texture = GetSpellTexture(i,value)
+				--DoTimer_Debug("DoTimer_ReturnEnglishSPELL "..spell)
+				--DoTimer_Debug("DoTimer_ReturnEnglishTEXTURE "..texture)
 				break
 			end
 			i = i + 1
 		end
 	end
-	if texture and DoTimer_SpellData[class] and DoTimer_SpellData[class][texture] then return DoTimer_SpellData[class][texture].name end
+	if texture and DoTimer_SpellData[class] and DoTimer_SpellData[class][texture] then
+		--DoTimer_Debug("DoTimer_ReturnEnglish 3".. DoTimer_SpellData[class][texture].name)
+		return DoTimer_SpellData[class][texture].name
+	end
+	--DoTimer_Debug("DoTimer_ReturnEnglish- unknown")
 	return "unknown"
 end
 
 function DoTimer_ToLocale(spellname) -- returns the localized name of the english spell
+	
 	for index,value in pairs(DoTimer_SpellData[class]) do
 		if value.name == spellname then
 			local i = 1
@@ -63,12 +73,14 @@ function DoTimer_ToLocale(spellname) -- returns the localized name of the englis
 				local texture = GetSpellTexture(i,BOOKTYPE_SPELL)
 				if texture == index then
 					local spell = GetSpellName(i,BOOKTYPE_SPELL)
+				--	DoTimer_AddText(spell)
 					return spell
 				end
 				i = i + 1
 			end
 		end
 	end
+	--DoTimer_AddText("unknown")
 	return "unknown"
 end
 
@@ -92,7 +104,7 @@ function DoTimer_OnLoad()
 	SLASH_DOTIMER1 = "/dotimer" --creating the slash command
 	SLASH_DOTIMER2 = "/dot" --and the other one, for those who are lazy
 	SlashCmdList["DOTIMER"] = DoTimer_Commands
-	if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("DoTimer by Asheyla loaded! Access this addon by typing \"/dotimer\" or \"/dot\"") end  --a little PR never hurts ^^
+	if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(DOTIMER_LOADED) end  --a little PR never hurts ^^
 end
 
 function DoTimer_OnEvent(event)
@@ -180,6 +192,7 @@ function DoTimer_OnUpdate() --updating the timers onscreen, as well as checking 
 end
 
 function DoTimer_ScanDebuffs() --deletes the timers of spells which are no longer on the target
+	--DoTimer_Debug("DoTimer_ScanDebuffs")
 	local unitids = {"target","pettarget"} --making use of both your target and your pet's target
 	for index,value in ipairs(unitids) do
 		local target,sex,level
@@ -209,10 +222,10 @@ function DoTimer_ScanDebuffs() --deletes the timers of spells which are no longe
 						end
 						if not wrongreason then
 							local time = GetTime()
-							DoTimer_Debug(casted[found][i].spell.." not found on "..UnitName(value).."; depreciating if mob, deleting if not")
+							--DoTimer_Debug(casted[found][i].spell.." not found on "..UnitName(value).."; depreciating if mob, deleting if not")
 							if casted[found].type == "mob" then DoTimer_DepreciateTimer(found,i) else DoTimer_RemoveTimer(found,i,1) end --player timers are removed because they cannot be depreciated
 						else
-							DoTimer_Debug(casted[found][i].spell.." not found on "..UnitName(value)..", but we expected that")
+							--DoTimer_Debug(casted[found][i].spell.." not found on "..UnitName(value)..", but we expected that")
 							DoTimer_RemoveTimer(found,i)
 						end
 					end
@@ -223,6 +236,7 @@ function DoTimer_ScanDebuffs() --deletes the timers of spells which are no longe
 end
 
 function DoTimer_ScanBuffs() --checking buffs to see if any friendly spells need to be removed
+	--DoTimer_Debug("DoTimer_ScanBuffs")
 	local unitids = {
 		"target",
 		"mouseover",
@@ -254,7 +268,7 @@ function DoTimer_ScanBuffs() --checking buffs to see if any friendly spells need
 					end
 					if not (casted[found][i].type == "heal") then ontarget = 1 end --we only want to deal with heal timers
 					if not ontarget then
-						DoTimer_Debug(casted[found][i].spell.." not found on target, removing it")
+						--DoTimer_Debug(casted[found][i].spell.." not found on target, removing it")
 						DoTimer_RemoveTimer(found,i,1)
 					end
 				end
@@ -264,6 +278,7 @@ function DoTimer_ScanBuffs() --checking buffs to see if any friendly spells need
 end
 
 function DoTimer_DepreciateTimer(found,i) --depreciated the timer if the target is eligible
+	--DoTimer_Debug("DoTimer_DepreciateTimer")
 	--if casted[found].eligible then DoTimer_AddText("The timers for "..casted[found].target.." are eligible for depreciation.") else DoTimer_AddText("The timers for "..casted[found].target.." are not eligible for depreciation.") end
 	if DoTimer_Settings.dep and (casted[found].eligible) and ((casted[found][i].displayed or 2) > 1) then
 		casted[found][i].dep = 1
@@ -276,13 +291,14 @@ function DoTimer_DepreciateTimer(found,i) --depreciated the timer if the target 
 end
 
 function DoTimer_CheckConflag()
+--	DoTimer_Debug("DoTimer_CheckConflag")
 	if DoTimer_ReturnEnglish(arg1) == "Conflagrate" then
 		local found = DoTimer_ReturnTargetTable(arg5.name,arg5.sex,arg5.level)
 		if found then
 			local removed
 			for i = table.getn(casted[found]),1,-1 do --checking that target for immolate
 				if DoTimer_ReturnEnglish(casted[found][i].spell) == "Immolate" and DoTimer_TimerIsAppreciated(found,i) then
-					DoTimer_Debug(casted[found].target.." had an appreciated immol, removed it")
+					--DoTimer_Debug(casted[found].target.." had an appreciated immol, removed it")
 					DoTimer_RemoveTimer(found,i,1)
 					removed = 1
 					break
@@ -299,7 +315,7 @@ function DoTimer_CheckConflag()
 					end
 				end
 				if id then 
-					DoTimer_Debug(casted[found].target.." had a depreciated immol, removed it")
+					--DoTimer_Debug(casted[found].target.." had a depreciated immol, removed it")
 					DoTimer_RemoveTimer(found,id,1) 
 				end
 			end
@@ -308,6 +324,7 @@ function DoTimer_CheckConflag()
 end
 
 function DoTimer_ChangedTargets()
+	--DoTimer_Debug("DoTimer_CheckConflag")
 	local newtarget
 	if UnitName("target") then newtarget = {UnitName("target"),UnitSex("target"),UnitLevel("target")} end
 	--DoTimer_AddText("flag1") --flag
@@ -316,11 +333,11 @@ function DoTimer_ChangedTargets()
 	for i = 1,table.getn(casted) do casted[i].eligible = 1 end --all tables are now eligible for depreciated timers
 	local found = DoTimer_ReturnTargetTable(lasttarget[1],lasttarget[2],lasttarget[3])
 	if newtarget and newtarget[1] == lasttarget[1] and newtarget[2] == lasttarget[2] and newtarget[3] == lasttarget[3] then
-		DoTimer_Debug("new target identical to old target")
+		--DoTimer_Debug("new target identical to old target")
 		--DoTimer_AddText("flag2") --flag
 		if found then
 			--DoTimer_AddText("flag3") --flag
-			DoTimer_Debug("depreciating all appreciated timers for "..casted[found].target)
+			--DoTimer_Debug("depreciating all appreciated timers for "..casted[found].target)
 			for i = table.getn(casted[found]),1,-1 do
 				if DoTimer_TimerIsAppreciated(found,i) then DoTimer_DepreciateTimer(found,i) end --if we are switching targets to one that is "identical" to the previous, automatically depreciate since we know they are inaccurate
 			end
@@ -328,7 +345,7 @@ function DoTimer_ChangedTargets()
 	end
 	if UnitName("target") then lasttarget = {UnitName("target"),UnitSex("target"),UnitLevel("target")} else lasttarget = {} end
 	if DoTimer_Settings.onlytarget then 
-		DoTimer_Debug("redoing interface to reflect target change")
+		--DoTimer_Debug("redoing interface to reflect target change")
 		DoTimer_CreateInterface() 
 	end
 end
@@ -341,10 +358,10 @@ function DoTimer_HostileDeath()
 		died = SpellSystem_ParseString(arg1,slainmsg)
 	end
 	if died == UnitName("target") and UnitIsDead("target") then --your target died, we will delete its entries
-		DoTimer_Debug("current target died")
+		--DoTimer_Debug("current target died")
 		local found = DoTimer_ReturnTargetTable(died,UnitSex("target"),UnitLevel("target"))
 		if found then --sure enough, it did!
-			DoTimer_Debug("and it had timers; removing appreciated")
+			--DoTimer_Debug("and it had timers; removing appreciated")
 			for i = table.getn(casted[found]),1,-1 do 
 				if DoTimer_TimerIsAppreciated(found,i) then DoTimer_RemoveTimer(found,i) end 
 			end
@@ -357,11 +374,11 @@ function DoTimer_HostileDeath()
 			end
 		end
 	else --will ignore if mob, will delete if player
-		DoTimer_Debug("mob died, not current target")
+		--DoTimer_Debug("mob died, not current target")
 		local targettable = DoTimer_ReturnTargetTable(UnitName("target"),UnitSex("target"),UnitLevel("target"))
 		for i = table.getn(casted),1,-1 do
 			if not (i == targettable) and (casted[i].target == died) and (not (casted[i].type == "mob")) then
-				DoTimer_Debug("removing its timers anyway though")
+				--DoTimer_Debug("removing its timers anyway though")
 				DoTimer_RemoveTarget(i) --dont bother with appreciated stuff; it has a unique name so it should be removed outright
 				break
 				--DoTimer_AddText(died.." died and its entries were removed.")
@@ -382,7 +399,7 @@ function DoTimer_PlayerDeath()
 	DoTimerDeathFrame:SetScript("OnUpdate",function() --we delay the combat check .5 seconds, just to make sure we are really out of combat
 		if GetTime() >= this.time + 3 then
 			if UnitIsDeadOrGhost("player") then
-				DoTimer_Debug("still dead 3 seconds later; removing all timers")
+				--DoTimer_Debug("still dead 3 seconds later; removing all timers")
 				DoTimer_RemoveAllTimers()
 			end
 			this:SetScript("OnUpdate",nil)
@@ -400,7 +417,7 @@ function DoTimer_LeftCombat()
 	DoTimerCombatFrame:SetScript("OnUpdate",function() --we delay the combat check .5 seconds, just to make sure we are really out of combat
 		if GetTime() >= this.time + .5 then
 			if not UnitAffectingCombat("player") then
-				DoTimer_Debug("still out of combat .5 seconds later; removing all non-enslave, non-player timers")
+				--DoTimer_Debug("still out of combat .5 seconds later; removing all non-enslave, non-player timers")
 				for i = table.getn(casted),1,-1 do
 					if not (casted[i].type == "player") then DoTimer_RemoveTarget(i) end
 				end
@@ -417,6 +434,7 @@ function DoTimer_LeftCombat()
 end
 
 function DoTimer_DebuffFade()
+	DoTimer_Debug("DoTimer_DebuffFade")
 	local chatspell,chattarget = SpellSystem_ParseString(arg1,fadesmsg)
 	--we will delete the timer if 1) the target is our current target, and 2) there are now no occurrences of the debuff on the target
 	if DoTimer_intable(chatspell,spells) then --scan target for debuffs; if no more occurrences then we can delete that timer
@@ -455,6 +473,7 @@ function DoTimer_DebuffFade()
 end
 
 function DoTimer_RemoveTimer(targetindex,debuffindex,unforced) --deletes a timer onscreen from existence
+	DoTimer_Debug("DoTimer_RemoveTimer")
 	if unforced then 
 		DoTimer_Debug("a timer has been removed unforcibly")
 		if DoTimer_Settings.allghost and (DoTimer_TimerIsReal(targetindex,debuffindex) or casted[targetindex][debuffindex].dep) then DoTimer_CreateGhostTimer(targetindex,debuffindex) end
@@ -574,7 +593,7 @@ function DoTimer_ReturnTexture(spell) --returns the texture path for the icon of
 		local i = 1
 		while GetSpellName(i,value) do
 			local spellname = GetSpellName(i,value)
-			if spell == spellname then 
+			if spell == spellname then
 				return GetSpellTexture(i,value)
 			end
 			i = i + 1
@@ -584,6 +603,7 @@ function DoTimer_ReturnTexture(spell) --returns the texture path for the icon of
 end
 
 function DoTimer_CreateSpellTimer(spelltable) --creates a timer onscreen from nothingness
+	--DoTimer_Debug("DoTimer_CreateSpellTimer")
 	DoTimer_Debug("processing timer for "..spelltable.spell.." on "..spelltable.target)
 	--DoTimer_AddText(spell.." has been successfully cast on "..target..".")
 	local list = {spell = spelltable.spell, rank = spelltable.rank, texture = spelltable.texture, duration = spelltable.duration, time = GetTime(), type = spelltable.timertype, english = spelltable.english} --the table that governs debuff data
@@ -642,6 +662,7 @@ function DoTimer_CreateSpellTimer(spelltable) --creates a timer onscreen from no
 end
 
 function DoTimer_PotentialSpellTimer()
+	DoTimer_Debug("DoTimer_PotentialSpellTimer")
 	if arg3.type == "spell" then
 		if DoTimer_intable(arg1,spells) then
 			DoTimer_Debug("spell success: "..arg1)
@@ -650,6 +671,7 @@ function DoTimer_PotentialSpellTimer()
 			}
 			table.insert(finalspell,finalspellentry)
 			if table.getn(finalspell) == 1 then 
+			DoTimer_Debug("spell success 2: "..arg1)
 				DoTimerPreTimerFrame:SetScript("OnUpdate",function() DoTimer_CheckPreTimers() end)
 				DoTimerIconFrame:SetScript("OnUpdate",function() DoTimer_AwaitIcon() end) 
 			end
@@ -667,10 +689,17 @@ end
 
 function DoTimer_PotentialHealTimer()
 	if DoTimer_intable(arg1,healspells) then
+		local finishedheal
 		DoTimer_Debug("heal success: "..arg1)
-		local finishedheal = {
-			spell = arg1, rank = arg2, target = arg5.name, targetsex = arg5.sex, targetlevel = arg5.level, texture = arg4, duration = DoTimer_ReturnDuration(arg1,arg2), targettype = arg5.type, timertype = "heal", english = english
-		}
+		if arg1 == "Tiger's Fury" then
+			finishedheal = {
+				spell = arg1, rank = arg2, target = UnitName("player"), targetsex = UnitSex("player"), targetlevel = UnitLevel("player"), texture = arg4, duration = DoTimer_ReturnDuration(arg1,arg2), targettype = "player", timertype = "heal", english = english
+			}
+		else
+			finishedheal = {
+				spell = arg1, rank = arg2, target = arg5.name, targetsex = arg5.sex, targetlevel = arg5.level, texture = arg4, duration = DoTimer_ReturnDuration(arg1,arg2), targettype = arg5.type, timertype = "heal", english = english
+			}
+		end
 		DoTimer_CreateSpellTimer(finishedheal)
 	end
 end
@@ -693,25 +722,37 @@ function DoTimer_intable(query,checkedtable) --checks a spell to see if it needs
 end
 
 function DoTimer_ReturnDuration(spell,rank) --returns the duration of a spell
+	DoTimer_Debug("DoTimer_ReturnDuration")
 	local tables = {BOOKTYPE_SPELL,BOOKTYPE_PET}
 	for index,value in ipairs(tables) do
 		local i = 1
 		while GetSpellName(i,value) do
 			local spellname,spellrank = GetSpellName(i,value)
-			if spellname == spell and ((spellrank == rank) or (rank == "") or (value == BOOKTYPE_PET)) then
+			if spell == "Taunt" then
+				return 3 -- had to hard code since the Taunt tooltip doesn't contain it's duration //Reaper fixed Kvital -- Otwo
+			elseif spell == "Growl" then
+				return 3 -- had to hard code since the Growl tooltip doesn't contain it's duration //Kvital --- Otwo	
+			elseif spellname == spell and ((spellrank == rank) or (rank == "") or (value == BOOKTYPE_PET)) then
 				DoTimerScanningFrame:ClearLines()
 				DoTimerScanningFrame:SetSpell(i,value)
 				local num = DoTimerScanningFrame:NumLines()
 				local text = getglobal("DoTimerScanningFrameTextLeft"..num):GetText()
 				local allnumbers = {SpellSystem_ParseString(text,"(%d[%d%.]*)")}
-				if allnumbers[1] == false then allnumbers[1] = basenumber end
 				local basenumber = DoTimer_SpellData[class][DoTimer_ReturnTexture(spell)].duration
 				local multiplier = DoTimer_SpellData[class][DoTimer_ReturnTexture(spell)].multiplier
 				if allnumbers[1] == false then allnumbers[1] = basenumber end
-				local truenumber
+				local truenumber=0
+				if allnumbers[0] then DoTimer_Debug("allnumbers0 "..allnumbers[0]) end
+				if allnumbers[1] then DoTimer_Debug("allnumbers1 "..allnumbers[1]) end
+				if allnumbers[2] then DoTimer_Debug("allnumbers2 "..allnumbers[2]) end
+				if allnumbers[3] then DoTimer_Debug("allnumbers3 "..allnumbers[3]) end
+				if allnumbers[4] then DoTimer_Debug("allnumbers4 "..allnumbers[4]) end
 				for index2,value2 in ipairs(allnumbers) do
-					if ((not truenumber) or (math.abs(value2 - basenumber) < math.abs(truenumber - basenumber))) then truenumber = value2 end
+					if ((not truenumber) or (math.abs(value2 - basenumber) <= math.abs(truenumber - basenumber))) then
+						truenumber = value2
+					end
 				end
+				DoTimer_Debug("truenumber! "..truenumber)
 				return truenumber * multiplier
 			end
 			i = i + 1
@@ -792,12 +833,14 @@ function DoTimer_ReturnManaCost(spellname,rankname) --parsing the mana cost of t
 		end
 		i = i + 1
 	end
-	if found then
+	--DoTimer_AddText("SPELLNAME: "..spellname)
+	if found and spellname ~= "Shoot" then
 		--DoTimer_AddText("spell found at "..found)
 		DoTimerScanningFrame:ClearLines()
 		DoTimerScanningFrame:SetSpell(found,"spell")
 		local mana = SpellSystem_ParseString(DoTimerScanningFrameTextLeft2:GetText(),"^(%d+) ")
-		--DoTimer_AddText("mana: "..UnitMana("player")..", needed: "..mana)
+		--DoTimer_AddText("GetText: "..DoTimerScanningFrameTextLeft2:GetText())
+	--	DoTimer_AddText("mana: "..UnitMana("player")..", needed: "..mana)
 		return (mana or false)
 	else
 		--DoTimer_AddText("cant find spell")
@@ -1447,7 +1490,7 @@ function DoTimer_ButtonClicked(index,indexid) --the script for when an icon is c
 				end
 				CastSpellByName(spell.."("..rank..")") 
 			else 
-				TargetByName(casted[index].target) 
+				TargetByName(casted[index].target)
 			end
 		else
 			if not (casted[index].target == UnitName("target") and casted[index].level == UnitLevel("target") and casted[index].sex == UnitSex("target")) then TargetByName(casted[index].target) end
@@ -1582,7 +1625,7 @@ function DoTimer_DefineInterface(targetsetup,debuffsetup,startup) --the controll
 		ref1,ref2,ref3,ref4,ref5,ref6,ref7,ref8,ref9,ref10 = "BOTTOMRIGHT","TOPRIGHT","TOP","BOTTOM","TOPLEFT","BOTTOMRIGHT","TOPRIGHT","LEFT","RIGHT","TOPRIGHT"
 		num1,num2,num3,num4,num5,num6,num7,num8,num9,num10 = 0,5,0,-5,-5,0,5,0,-5,-5
 	else
-		DoTimer_AddText("Failure to change interface design! No changes made.")
+		DoTimer_AddText(DOTIMER_MENU_FAILURE_CHANGE)
 		DoTimer_Settings.targetlayout = oldtargetsetup
 		DoTimer_Settings.debufflayout = olddebuffsetup
 	end
@@ -1774,178 +1817,178 @@ function DoTimer_Commands(msg,fromgui) --governs the /command
 	if msg == "" then DoTimerMenuFrame:Show()
 	elseif msg == "on" then 
 		DoTimer_Settings.status = "on"
-		DoTimer_AddMenuText("DoTimer by Asheyla now activated!",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_ON,fromgui)
 		DoTimerFrame:SetScript("OnEvent",function() DoTimer_OnEvent(event) end)
 		DoTimerFrame:SetScript("OnUpdate",function() DoTimer_OnUpdate() end)
 		DoTimerMainFrame:Show()
 		DoTimer_Settings.visible = true		
 	elseif msg == "off" then
 		DoTimer_Settings.status = "off"
-		DoTimer_AddMenuText("DoTimer by Asheyla is now deactivated.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_OFF,fromgui)
 		DoTimerFrame:SetScript("OnEvent",nil)
 		DoTimerFrame:SetScript("OnUpdate",nil)
 		DoTimerMainFrame:Hide()
 		DoTimer_Settings.visible = false
 	elseif msg == "debug off" then
 		DoTimer_DebugChannel = nil
-		DoTimer_AddMenuText("No longer printing debug messages.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_DEBUG_OFF,fromgui)
 	elseif msg == "reset" then
 		DoTimer_Settings = {}
 		DoTimer_Startup()
 		DoTimerAnchorFrame:ClearAllPoints()
 		DoTimerAnchorFrame:SetPoint("CENTER","UIParent","CENTER")
-		DoTimer_AddMenuText("All user data is now reset.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_RESET,fromgui)
 	elseif msg == "set format bars" then
 		DoTimer_Settings.format = "bars"
 		DoTimer_DefineFormat()
-		DoTimer_AddMenuText("Timers will now be displayed as bars.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_FORMAT_BARS,fromgui)
 	elseif msg == "set format icons" then
 		DoTimer_Settings.format = "icons"
 		DoTimer_DefineFormat()
-		DoTimer_AddMenuText("Timers will now be displayed as icons.",fromgui)		
+		DoTimer_AddMenuText(DOTIMER_CMD_FORMAT_ICONS,fromgui)		
 	elseif msg == "reset position" then
 		DoTimerAnchorFrame:ClearAllPoints()
 		DoTimerAnchorFrame:SetPoint("CENTER","UIParent","CENTER")
-		DoTimer_AddMenuText("The position of the UI is now reset.",fromgui)		
+		DoTimer_AddMenuText(DOTIMER_CMD_RESET_POSITION,fromgui)		
 	elseif msg == "ui off" then
 		DoTimer_Settings.visible = false
 		DoTimerMainFrame:Hide()
-		DoTimer_AddMenuText("The interface is now hidden.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_UI_OFF,fromgui)
 	elseif msg == "ui on" then
 		DoTimer_Settings.visible = true
 		DoTimerMainFrame:Show()
-		DoTimer_AddMenuText("The interface is now shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_UI_ON,fromgui)
 	elseif msg == "play sounds" then
 		DoTimer_Settings.playsound = true
-		DoTimer_AddMenuText("A sound will be played at 5 seconds.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SOUND_ON,fromgui)
 	elseif msg == "do not play sounds" then
 		DoTimer_Settings.playsound = false
-		DoTimer_AddMenuText("No sounds will be played.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SOUND_OFF,fromgui)
 	elseif msg == "force conflag" then
 		DoTimer_Settings.conflag = true
-		DoTimer_AddMenuText("Conflagrate will replace immolate, or Swiftmend Rejuvnation, in ghost timers.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_FORCE_CONFLAG_ON,fromgui)
 	elseif msg == "do not force conflag" then
 		DoTimer_Settings.conflag = false
-		DoTimer_AddMenuText("Immolate's and Rejuvenation's ghost timers will be unchanged.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_FORCE_CONFLAG_OFF,fromgui)
 	elseif msg == "show only target" then
 		DoTimer_Settings.onlytarget = true
-		DoTimer_AddMenuText("Only timers your current target will be shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_ONLY_TARGET_ON,fromgui)
 	elseif msg == "do not show only target" then
 		DoTimer_Settings.onlytarget = false
-		DoTimer_AddMenuText("All timers will be shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_ONLY_TARGET_OFF,fromgui)
 	elseif msg == "names off" then
 		DoTimer_Settings.names = false
-		DoTimer_AddMenuText("Names will not be shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_NAMES_OFF,fromgui)
 		DoTimer_ResizeInterface()
 	elseif msg == "names on" then
 		DoTimer_Settings.names = true
-		DoTimer_AddMenuText("Names will  be shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_NAMES_ON,fromgui)
 		DoTimer_ResizeInterface()
 	elseif msg == "mana check on" then
 		DoTimer_Settings.manacheck = true
-		DoTimer_AddMenuText("Life tap will be cast instead of the casted spell if not enough mana for it.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_MANA_CHECK_ON,fromgui)
 	elseif msg == "mana check off" then
 		DoTimer_Settings.manacheck = false
-		DoTimer_AddMenuText("Spell casts will behave normally.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_MANA_CHECK_OFF,fromgui)
 	elseif msg == "lock" then
 		DoTimer_Settings.locked = true
 		DoTimerAnchorFrame:Hide()
-		DoTimer_AddMenuText("The timers are now locked in place.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_LOCK,fromgui)
 	elseif msg == "unlock" then
 		DoTimer_Settings.locked = false
 		DoTimerAnchorFrame:Show()
-		DoTimer_AddMenuText("The timers can now be moved by dragging the little button around.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_UNLOCK,fromgui)
 	elseif msg == "immol" then
 		if preventingimmol then
 			preventingimmol = nil
-			DoTimer_AddMenuText("Immolate will be not anymore.",fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_IMMOL_OFF,fromgui)
 		else
 			preventingimmol = 1
-			DoTimer_AddMenuText("Immolate will be prevented for the duration of combat.",fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_IMMOL_ON,fromgui)
 		end
 	elseif msg == "hide" then
 		DoTimer_DelTimers()
 	elseif msg == "show levels" then
 		DoTimer_Settings.levels = true
-		DoTimer_AddMenuText("Levels will be shown with the target name.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_LEVELS_ON,fromgui)
 	elseif msg == "no levels" then
 		DoTimer_Settings.levels = false
-		DoTimer_AddMenuText("Levels will not be shown with the target name.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_LEVELS_OFF,fromgui)
 	elseif msg == "sort by remaining" then
-		DoTimer_AddMenuText("Timers will now be ordered by their time remaining.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SORT_REMAINING,fromgui)
 		DoTimer_Settings.sortbyadded = false
 	elseif msg == "sort by added" then
-		DoTimer_AddMenuText("Timers will now be ordered by when they were cast. ",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SORT_ADDED,fromgui)
 		DoTimer_Settings.sortbyadded = true
 	elseif msg == "clickable debuffs" then
 		DoTimer_Settings.clickable = true
-		DoTimer_AddMenuText("The debuffs can now be clicked.  Shift+click to delete, click to target, control+click to create ghost timer.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_CLICKABLE_DEBUFFS_ON,fromgui)
 	elseif msg == "unclickable debuffs" then
 		DoTimer_Settings.clickable = false
-		DoTimer_AddMenuText("The debuffs can no longer be clicked.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_CLICKABLE_DEBUFFS_OFF,fromgui)
 	elseif msg == "no expire alert" then
 		DoTimer_Settings.expalert = false
-		DoTimer_AddMenuText("The timers will not change color or highlight.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_EXPIRE_ALERT_OFF,fromgui)
 	elseif msg == "expire alert" then
 		DoTimer_Settings.expalert = true
-		DoTimer_AddMenuText("The timers will change to red and highlight at 5 seconds.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_EXPIRE_ALERT_ON,fromgui)
 	elseif msg == "show preventing immols" then
-		DoTimer_AddText("The macro functions will prevent Immolate being cast on the following mobs: ")
+		DoTimer_AddText(DOTIMER_CMD_PREVENTING_IMMOLS)
 		for index,value in pairs(DoTimer_Settings.preventimmol) do DoTimer_AddText(index) end
 	elseif msg == "old timers" then
 		DoTimer_Settings.dep = true
-		DoTimer_AddMenuText("Timers which may no longer be accurate for your current target will still be shown.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_OLD_TIMERS_ON,fromgui)
 	elseif msg == "no old timers" then
 		DoTimer_Settings.dep = false
-		DoTimer_AddMenuText("Timers which may no longer be accurate for your current target will be deleted.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_OLD_TIMERS_OFF,fromgui)
 	elseif msg == "do not include probable" then
 		DoTimer_Settings.probable = false
-		DoTimer_AddMenuText("The macro functions scanning for your own debuffs will ignore depreciated timers.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_INCLUDE_PROBABLE_OFF,fromgui)
 	elseif msg == "include probable" then
 		DoTimer_Settings.probable = true
-		DoTimer_AddMenuText("The macro functions scanning for your own debuffs will include depreciated timers.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_INCLUDE_PROBABLE_ON,fromgui)
 	elseif msg == "all ghost on" then
 		DoTimer_Settings.allghost = true
-		DoTimer_AddMenuText("Every timer created will automatically make a ghost timer.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_GHOST_ON,fromgui)
 	elseif msg == "all ghost off" then
 		DoTimer_Settings.allghost = false
-		DoTimer_AddMenuText("Ghost timers will not be automatically created.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_GHOST_OFF,fromgui)
 	elseif msg == "separate ghosts" then
 		DoTimer_Settings.sepghost = true
-		DoTimer_AddMenuText("Ghost timers will be separated from regular timers.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SEPARATE_GHOST_ON,fromgui)
 	elseif msg == "do not separate ghosts" then
 		DoTimer_Settings.sepghost = false
-		DoTimer_AddMenuText("Ghost timers will not be separated from regular timers.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SEPARATE_GHOST_OFF,fromgui)
 	elseif msg == "status" then
-		DoTimer_AddText("|cff00ffffDoTimer Status:|r")
-		DoTimer_AddText("Status of addon: |cff00ff00"..tostring(DoTimer_Settings.status).."|r")
-		DoTimer_AddText("UI scale: |cff00ff00"..tostring(DoTimer_Settings.scale).."|r")
-		DoTimer_AddText("UI visible: |cff00ff00"..tostring(DoTimer_Settings.visible).."|r")
-		DoTimer_AddText("showing names: |cff00ff00"..tostring(DoTimer_Settings.names).."|r")
-		DoTimer_AddText("checking for mana before spellcasts: |cff00ff00"..tostring(DoTimer_Settings.manacheck).."|r")
-		DoTimer_AddText("max target tables: |cff00ff00"..tostring(DoTimer_Settings.maxtargets).."|r")
-		DoTimer_AddText("max debuffs per target table: |cff00ff00"..tostring(DoTimer_Settings.maxdebuffs).."|r")
-		DoTimer_AddText("locked timers in place: |cff00ff00"..tostring(DoTimer_Settings.locked).."|r")
-		DoTimer_AddText("target expansion direction: |cff00ff00"..tostring(DoTimer_Settings.targetlayout).."|r")
-		DoTimer_AddText("debuff expansion direction: |cff00ff00"..tostring(DoTimer_Settings.debufflayout).."|r")
-		DoTimer_AddText("debuffs ordering by time added: |cff00ff00"..tostring(DoTimer_Settings.sortbyadded).."|r")
-		DoTimer_AddText("clickable debuffs: |cff00ff00"..tostring(DoTimer_Settings.clickable).."|r")
-		DoTimer_AddText("button scale: |cff00ff00"..tostring(DoTimer_Settings.buttonscale).."|r")
-		DoTimer_AddText("changing color of timers: |cff00ff00"..tostring(DoTimer_Settings.expalert).."|r")
-		DoTimer_AddText("showing depreciated timers: |cff00ff00"..tostring(DoTimer_Settings.dep).."|r")
-		DoTimer_AddText("including probable timers in functions: |cff00ff00"..tostring(DoTimer_Settings.probable).."|r")
-		DoTimer_AddText("mana check lifetap rank: |cff00ff00"..tostring(DoTimer_Settings.lifetaprank).."|r")
-		DoTimer_AddText("automatic ghost timer creation: |cff00ff00"..tostring(DoTimer_Settings.allghost).."|r")
-		DoTimer_AddText("separated ghost timers: |cff00ff00"..tostring(DoTimer_Settings.sepghost).."|r")
-		DoTimer_AddText("showing levels: |cff00ff00"..tostring(DoTimer_Settings.levels).."|r")
-		DoTimer_AddText("showing only target: |cff00ff00"..tostring(DoTimer_Settings.onlytarget).."|r")
-		DoTimer_AddText("playing sounds: |cff00ff00"..tostring(DoTimer_Settings.playsound).."|r")
-		DoTimer_AddText("forcing conflag / swiftmend: |cff00ff00"..tostring(DoTimer_Settings.conflag).."|r")
-		DoTimer_AddText("timer format: |cff00ff00"..tostring(DoTimer_Settings.format).."|r")
-		DoTimer_AddText("bar length: |cff00ff00"..tostring(DoTimer_Settings.barlength).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG2..tostring(DoTimer_Settings.status).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG3..tostring(DoTimer_Settings.scale).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG4..tostring(DoTimer_Settings.visible).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG5..tostring(DoTimer_Settings.names).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG6..tostring(DoTimer_Settings.manacheck).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG7..tostring(DoTimer_Settings.maxtargets).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG8..tostring(DoTimer_Settings.maxdebuffs).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG9..tostring(DoTimer_Settings.locked).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG10..tostring(DoTimer_Settings.targetlayout).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG11..tostring(DoTimer_Settings.debufflayout).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG12..tostring(DoTimer_Settings.sortbyadded).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG13..tostring(DoTimer_Settings.clickable).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG14..tostring(DoTimer_Settings.buttonscale).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG15..tostring(DoTimer_Settings.expalert).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG16..tostring(DoTimer_Settings.dep).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG17..tostring(DoTimer_Settings.probable).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG18..tostring(DoTimer_Settings.lifetaprank).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG19..tostring(DoTimer_Settings.allghost).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG20..tostring(DoTimer_Settings.sepghost).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG21..tostring(DoTimer_Settings.levels).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG22..tostring(DoTimer_Settings.onlytarget).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG23..tostring(DoTimer_Settings.playsound).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG24..tostring(DoTimer_Settings.conflag).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG25..tostring(DoTimer_Settings.format).."|r")
+		DoTimer_AddText(DOTIMER_CMD_STATUS_MSG26..tostring(DoTimer_Settings.barlength).."|r")
 	elseif string.sub(msg,1,11) == "set layout " then
 		local targetlayout,debufflayout = SpellSystem_ParseString(msg,"(%a+)",-2)
-		DoTimer_AddMenuText("Target tables will be added "..(targetlayout or "<cannot parse!>").." and debuffs will be added "..(debufflayout or "<cannot parse!>")..".",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_SET_LAYOUT1..(targetlayout or "<cannot parse!>")..DOTIMER_CMD_SET_LAYOUT2..(debufflayout or "<cannot parse!>"),fromgui)
 		DoTimer_DefineInterface(targetlayout,debufflayout)
 	elseif string.sub(msg,1,4) == "show" then
 		local num1,num2 = SpellSystem_ParseString(msg,"(%d+)",2)
@@ -1953,14 +1996,14 @@ function DoTimer_Commands(msg,fromgui) --governs the /command
 	elseif string.sub(msg,1,5) == "debug" then
 		DoTimer_DebugChannel = SpellSystem_ParseString(msg,"(%d+)")
 		if not DoTimer_DebugChannel then DoTimer_DebugChannel = "" end
-		DoTimer_AddMenuText("Now printing debug messages.",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_DEBUG_ON,fromgui)
 	elseif string.sub(msg,1,5) == "scale" then
 		local scale = string.sub(msg,7)
 		if type(tonumber(scale)) == "number" then
 			scale = tonumber(string.format("%.2f",scale))
 			DoTimerMainFrame:SetScale(scale)
 			DoTimer_Settings.scale = scale
-			DoTimer_AddMenuText("New scale: "..scale,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_SCALE..scale,fromgui)
 			DoTimer_ResizeInterface()
 		end
 	elseif string.sub(msg,1,11) == "bar length " then
@@ -1968,13 +2011,13 @@ function DoTimer_Commands(msg,fromgui) --governs the /command
 		if type(number) == "number" and number >= 50 and number <= 250 then
 			DoTimer_Settings.barlength = number
 			DoTimer_DefineFormat()
-			DoTimer_AddMenuText("Timer bars will now have length "..number,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_BAR_LENGHT..number,fromgui)
 		end
 	elseif string.sub(msg,1,11) == "max targets" then
 		local number = tonumber(string.sub(msg,12))
 		if type(number) == "number" and number > 0 and number < 11 then
 			DoTimer_Settings.maxtargets = number
-			DoTimer_AddMenuText("Max number of target tables is now "..number,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_MAX_TARGET..number,fromgui)
 		end
 	elseif string.sub(msg,1,9) == "simulate " then
 		local spell,target = SpellSystem_ParseString(msg,"simulate (.+) on (.+)")
@@ -1983,33 +2026,33 @@ function DoTimer_Commands(msg,fromgui) --governs the /command
 		local number = tonumber(string.sub(msg,13))
 		if type(number) == "number" and number > 0 and number < 21 then
 			DoTimer_Settings.maxdebuffs = number
-			DoTimer_AddMenuText("Max number of debuffs per target table is now "..number,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_MAX_DEBUFFS..number,fromgui)
 		end
 	elseif string.sub(msg,1,13) == "button scale " then
 		local scale = string.sub(msg,14)
 		if type(tonumber(scale)) == "number" then 
 			scale = tonumber(string.format("%.2f",scale))
 			DoTimer_Settings.buttonscale = scale
-			DoTimer_AddMenuText("The new button scale is now "..scale,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_BUTTON_SCALE..scale,fromgui)
 			DoTimer_ResizeInterface()
 		end	
 	elseif string.sub(msg,1,14) == "life tap rank " then
 		local rank = string.sub(msg,15)
 		if type(tonumber(rank)) == "number" or rank == "max" then
 			DoTimer_Settings.lifetaprank = rank
-			DoTimer_AddMenuText("The mana check feature will now use the following rank: "..rank,fromgui)
+			DoTimer_AddMenuText(DOTIMER_CMD_LIFE_TAP_RANK..rank,fromgui)
 		end
 	elseif string.sub(msg,1,17) == "prevent immol on " then
 		local target = string.sub(msg,18)
 		DoTimer_Settings.preventimmol[target] = 1
-		DoTimer_AddMenuText("Macro functions will prevent Immolate being cast on "..target,fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_PREVENT_IMMOL_ON..target,fromgui)
 	elseif string.sub(msg,1,19) == "unprevent immol on " then
 		local target = string.sub(msg,20)
 		DoTimer_Settings.preventimmol[target] = nil
-		DoTimer_AddMenuText("Macro functions will not prevent Immolate being cast on"..target,fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_UNPREVENT_IMMOL_ON..target,fromgui)
 	elseif string.sub(msg,1,4) == "help" then DoTimer_AddHelpMenu(msg)
 	else
-		DoTimer_AddMenuText("Type \"|cff00ff00/dotimer help|r\" for more options, or \"/dotimer\" to open the menu!",fromgui)
+		DoTimer_AddMenuText(DOTIMER_CMD_UNKNOWN_CMD,fromgui)
 	end
 end
 
@@ -2019,7 +2062,7 @@ function DoTimer_Startup() --called on first login per session, creates the defa
 	if DoTimer_Settings.status == nil then 
 		DoTimer_Settings.status = "on" 
 		DoTimerAnchorFrameFirstUse:Show()
-		DoTimerAnchorFrameFirstUse:SetText("<-- Welcome to DoTimer!  Please type \"/dotimer help new\" for first-time information.\nSimply drag the drag button to remove this display.")
+		DoTimerAnchorFrameFirstUse:SetText(DOTIMER_CMD_FIRST_USE)
 	end
 	local _,classname = UnitClass("player")
 	class = classname
@@ -2075,104 +2118,106 @@ end
 
 function DoTimer_AddHelpMenu(msg) --the help menu displayed ingame
 	if msg == "help general" then
-		DoTimer_AddText("|cff00ffffDoTimer General Help:|r")
-		DoTimer_AddText("|cff00ff00[on, off]|r: enables or disables the addon")
-		DoTimer_AddText("|cff00ff00status|r: displays all the current settings")
-		DoTimer_AddText("|cff00ff00ui [on, off]|r: toggles the graphical displaying of timers on/off, default on")
-		DoTimer_AddText("|cff00ff00[un]lock|r: toggles the visibility of the dragging button, used to move around the timers, default shown")
+		DoTimer_AddText(DOTIMER_CMD_HELP_GENERAL_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_GENERAL_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_GENERAL_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_GENERAL_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_GENERAL_MSG5)
 	elseif msg == "help sizing" then
-		DoTimer_AddText("|cff00ffffDoTimer Sizing Help:|r")
-		DoTimer_AddText("|cff00ff00scale #|r: set UI scale to that number, default 1")
-		DoTimer_AddText("|cff00ff00button scale #|r: set the button scale to that number, default 1")
+		DoTimer_AddText(DOTIMER_CMD_HELP_SIZING_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_SIZING_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_SIZING_MSG3)
 	elseif msg == "help basic interface" then
-		DoTimer_AddText("|cff00ffffDoTimer Basic Interface Help:|r")
-		DoTimer_AddText("|cff00ff00names [on, off]|r: toggles the graphical displaying of the names of units who you have debuffed, default on")
-		DoTimer_AddText("|cff00ff00[show, no] levels|r: toggles the displaying of the levels of units who you have debuffed, default on")
-		DoTimer_AddText("|cff00ff00max targets #|r: sets number of unique target tables created by the addon, max 10, default 5")
-		DoTimer_AddText("|cff00ff00max debuffs #|r: sets number of debuffs per target table, max 20, default 8")
+		DoTimer_AddText(DOTIMER_CMD_HELP_BASIC_INT_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_BASIC_INT_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_BASIC_INT_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_BASIC_INT_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_BASIC_INT_MSG5)
 	elseif msg == "help advanced interface" then
-		DoTimer_AddText("|cff00ffffDoTimer Advanced Interface Help:|r")
-		DoTimer_AddText("|cff00ff00set layout [2 of: left,right,up,down]|r: sets the direction targets/debuffs expand, respectively, default \"left down\"")
-		DoTimer_AddText("|cff00ff00show [#1 #2]|r: shows the interface for #1 targets and #2 debuffs, if not specified shows the max defined by your settings")
-		DoTimer_AddText("|cff00ff00hide|r: hides all visible timers (note: used to hide those shown by previous command)")
-		DoTimer_AddText("|cff00ff00sort by [added,remaining]|r: sorts the visible timers by either time added or time remaining, default added")
-		DoTimer_AddText("|cff00ff00[no ]expire alert|r: determines if timers will highlight for 2 seconds and turn red at 5 seconds, default on")
-		DoTimer_AddText("|cff00ff00[un]clickable debuffs|r: determines if the debuff icons can be clicked (shiftclick to erase, click to target),default off")
-		DoTimer_AddText("|cff00ff00[no ]old timers|r: determines if timers which may not be accurate for your current target will be shown (see help info), default on")
-		DoTimer_AddText("|cff00ff00[do not ]include probable|r: determines if probable timers will be counted in the corresponding macro functions (see help info), default on")
-		DoTimer_AddText("|cff00ff00[do not ]separate ghosts|r: determines if ghost timers will be separated a bit from normal timers, default on")
-		DoTimer_AddText("|cff00ff00[do not ]show only target|r: determines if only timers for your current target will be shown (though more will be tracked), default off")
-		DoTimer_AddText("|cff00ff00[do not ]force conflag|r: determines if Conflagrate will be casted from the Immolate ghost timer instead, or Swiftmend from Rejuvenation, default off")
-		DoTimer_AddText("|cff00ff00[do not ]play sounds|r: determines if a sound will be played when a timer hits 5 seconds left, default off")
-		DoTimer_AddText("|cff00ff00set format [bars,icons]|r: determines if timers will be displayed as bars or icons, default icons")
-		DoTimer_AddText("|cff00ff00bar length #|r: sets the length of timer bars to be #, default 150")
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG6)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG7)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG8)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG9)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG10)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG11)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG12)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG13)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG14)
+		DoTimer_AddText(DOTIMER_CMD_HELP_ADVANCED_INT_MSG15)
 	elseif msg == "help misc" then
-		DoTimer_AddText("|cff00ffffDoTimer Misc Help:|r")
-		DoTimer_AddText("|cff00ff00mana check [on, off]|r: determines if Life Tap will be cast instead of the spell attempting to be cast if you don't have enough mana to cast it, default off")
-		DoTimer_AddText("|cff00ff00simulate Spell on Target|r: creates a fake timer for Spell on Target (you must capitalize the spell correctly!)")
-		DoTimer_AddText("|cff00ff00life tap rank [number or \"max\"]|r: sets the rank of Life Tap to use for the mana-check feature; max will cast the highest you have health for, default \"max\"")
-		DoTimer_AddText("|cff00ff00prevent immol on mobname|r: makes macro functions DoT_IsSpell and DoT_IsPSpell not cast immolate on mobname")
-		DoTimer_AddText("|cff00ff00unprevent immol on mobname|r: undoes what the above command did")
-		DoTimer_AddText("|cff00ff00show preventing immols|r: shows all the mobs that immolate will be ignored on")
-		DoTimer_AddText("|cff00ff00immol|r: toggles the preventing of immolate for duration of combat")
-		DoTimer_AddText("|cff00ff00debug #}r: outputs debug messages to chat frame # (default shat frame if no number)")
-		DoTimer_AddText("|cff00ff00debug off|r: turns off the debug messages")
-		DoTimer_AddText("|cff00ff00all ghost [on,off]|r: determines if every created timer will automatically have a ghost timer created for it, default off")
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG6)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG7)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG8)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG9)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG10)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MISC_MSG11)
 	elseif msg == "help resetting" then
-		DoTimer_AddText("|cff00ffffDoTimer Resetting Help:|r")
-		DoTimer_AddText("|cff00ff00reset position|r: resets the position of the interface the the default middle of the screen")
-		DoTimer_AddText("|cff00ff00reset|r: flushes all user data to create a brand new installation")
+		DoTimer_AddText(DOTIMER_CMD_HELP_RESETTING_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_RESETTING_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_RESETTING_MSG3)
 	elseif msg == "help version" then
-		DoTimer_AddText("|cff00ffffDoTimer Version/Author Info:|r")
-		DoTimer_AddText("|cff00ff00Current version|r: "..version)
-		DoTimer_AddText("|cff00ff00Date Uploaded|r: "..date_uploaded)
-		DoTimer_AddText("|cff00ff00Author|r: Asheyla <Warcraft Gaming Faction>, Shattered Hand (Horde)")
-		DoTimer_AddText("|cff00ff00Contact info|r: ross456@gmail.com")
+		DoTimer_AddText(DOTIMER_CMD_HELP_VERSION_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_VERSION_MSG2..version)
+		DoTimer_AddText(DOTIMER_CMD_HELP_VERSION_MSG3..date_uploaded)
+		DoTimer_AddText(DOTIMER_CMD_HELP_VERSION_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_VERSION_MSG5)
 	elseif msg == "help info" then
-		DoTimer_AddText("|cff00ffffDoTimer Information:|r")
-		DoTimer_AddText("|cff00ff00Macro function DoT_IsPSpell(spell[,unit])|r: Tests your target for your own debuff.  If it cannot find it, casts it and returns false.  Else returns true.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_IsSpell(spell[,unit])|r: Tests your target for any of that debuff.  If it cannot find it, casts it and returns false.  Else returns true.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_DetermineCast(spell1,spell2[,unit])|r: If spell1 is not on target, casts it and returns false.  Else, if your own spell2 is not on target, casts it and returns false.  Else returns true.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_SpellOnTarget(spell[,unit])|r: Tests your target for any of that debuff.  If it cannot find it, return false.  Else returns true.  Does not cast.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_OwnSpellOnTarget(spell[,unit])|r: Tests your target for your own debuff.  If it cannot find it, return false.  Else returns true.  Does not cast.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_ReturnElapsed(spell[,unit])|r: Returns how long that spell has been on your target, or 0 if you don't have it on the mob.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_ReturnRemaining(spell[,unit])|r: Returns how much longer that spell will be on your target, or its max duration if you don't have it on the mob.")
-		DoTimer_AddText("|cff00ff00Macro function DoT_CastGhostSpell([unit])|r: Casts the spell of any ghost timer you have running on the mob.  ")		
-		DoTimer_AddText("|cff00ff00Old timers|r: they appear as faded icons and are debuffs the addon deems inaccurate for whatever reason.  No functions interact with them; they are for your own benefit.")
-		DoTimer_AddText("|cff00ff00Ghost timers|r: Made by control+clicking a timer.  When you click on them, it attempts to target the target of its originator debuff.  A subsequent click will cast the spell of the originator debuff.")
-		DoTimer_AddText("|cff00ff00Including probable timers|r: If on, the macro functions that check for your own debuffs will also cycle through depreciated timers if it cannot find a suitable timer.  Good unless there are multiple warlocks fighting mobs.  Use wisely.")
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG6)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG7)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG8)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG9)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG10)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG11)
+		DoTimer_AddText(DOTIMER_CMD_HELP_INFO_MSG12)
 	elseif msg == "help new" then
-		DoTimer_AddText("|cff00ffffDoTimer Beginner's Guide:|r")
-		DoTimer_AddText("|cff00ff00Please Note|r: The information in this subsection will not detail any other commands.  Please explore all help menus for a full understanding of all the features of this addon.")
-		DoTimer_AddText("|cff00ff00First Installation|r: You will notice a small black circle in the middle of your screen.  It is to this box that the timers are anchored.  Move it around by dragging it.")
-		DoTimer_AddText("|cff00ff00DoTimers|r: When you go out into the world and DoT a mob, timers will automatically appear.  There is no configuration required for this basic step.")
-		DoTimer_AddText("|cff00ff00Troubleshooting|r: If you ever have any errors, please contact me.  It would be best if you include a way to duplicate the problem.  Before doing this, try disabling your other addons and seeing if the problem goes away.  If it does, figure out the conflicting addon and tell me.")
-		DoTimer_AddText("|cff00ff00Features|r: Many features of this addon have been direct requests by other players.  If you ever have any suggestions, feel free to contact me about them.")
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_NEW_MSG6)
 	elseif msg == "help macros" then
-		DoTimer_AddText("|cff00ffffDoTimer Example Macros:|r")
-		DoTimer_AddText("|cff00ff00Cast your own corruption if it is not on the mob, else Shadow Bolt|r: /script if DoT_IsPSpell(\"Corruption\") then CastSpellByName(\"Shadow Bolt()\") end")
-		DoTimer_AddText("|cff00ff00Cast own corruption / immolate, then Shadow Bolt|r: /script if DoT_IsPSpell(\"Corruption\") then if DoT_IsPSpell(\"Immolate\") then CastSpellByName(\"Shadow Bolt()\") end")
-		DoTimer_AddText("|cff00ff00Cast Curse of Shadows if it is not on the mob, then Shoot wand|r: /script if DoT_IsSpell(\"Curse of Shadow\") then CastSpellByName(\"Shoot\") end")
-		DoTimer_AddText("|cff00ff00Cast CoS, or if someone else did then CoA, then Corruption, then Shadow Bolt|r: /script if DoT_DetermineSpell(\"Curse of Shadow\",\"Curse of Agony\") then if DoT_IsPSpell(\"Corruption\") then CastSpellByName(\"Shadow Bolt()\") end end")
-		DoTimer_AddText("|cff00ff00Cast Swiftmend if possible, else Rejuvenation|r: /script local s,c,r = DoT_SpellOnTarget,CastSpellByName,\"Rejuvenation\" if (s(r) or s(\"Regrowth\")) then c(\"Swiftmend\") else c(r) end")
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG6)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG7)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MACROS_MSG8)
 	elseif msg == "help other cmds" then
-		DoTimer_AddText("|cff00ffffDoTimer Other Commands:|r")
-		DoTimer_AddText("|cff00ff00immol|r: toggles the preventing of immolate for duration of combat")
-		DoTimer_AddText("|cff00ff00simulate Spell on Target|r: creates a fake timer for Spell on Target (you must capitalize the spell correctly!)")
-		DoTimer_AddText("|cff00ff00show #1 #2|r: shows the interface for #1 targets and #2 debuffs, if not specified shows the max defined by your settings")
-		DoTimer_AddText("|cff00ff00hide|r: hides all visible timers (note: used to hide those shown by previous command)")
+		DoTimer_AddText(DOTIMER_CMD_HELP_OTHER_CMD_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_OTHER_CMD_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_OTHER_CMD_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_OTHER_CMD_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_OTHER_CMD_MSG5)
 	else
-		DoTimer_AddText("|cff00ffffDoTimer Help Menu:|r")
-		DoTimer_AddText("|cff00ff00help new|r: information for first-time users")
-		DoTimer_AddText("|cff00ff00help general|r: basic addon features")
-		DoTimer_AddText("|cff00ff00help sizing|r: changing the size of the interface")
-		DoTimer_AddText("|cff00ff00help basic interface|r: controls for a few elements of the interface")
-		DoTimer_AddText("|cff00ff00help advanced interface|r: more advanced options for the interface")
-		DoTimer_AddText("|cff00ff00help misc|r: other random features")
-		DoTimer_AddText("|cff00ff00help resetting|r: for resetting things")
-		DoTimer_AddText("|cff00ff00help version|r: displays some version/author info")
-		DoTimer_AddText("|cff00ff00help info|r: describes a few features of the addon")
-		DoTimer_AddText("|cff00ff00help macros|r: displays a few example macros to get you started")
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG1)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG2)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG3)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG4)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG5)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG6)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG7)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG8)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG9)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG10)
+		DoTimer_AddText(DOTIMER_CMD_HELP_MSG11)
 	end
 end
 
