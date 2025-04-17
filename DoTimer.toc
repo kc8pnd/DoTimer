@@ -1,10 +1,9 @@
 ## Interface: 11200
 ## Title: DoTimer
-## Author: Asheyla
-## Version: 1.1
-## eMail: ross456@gmail.com
-## URL: http://www.curse-gaming.com/en/wow/addons-4304-1-dotimer.html
+## Author: Thebleh, Lichery
+## Version: 1.1.6
 ## Notes: Displays duration timers for DoTs
+## Notes-ruRU: Таймер дот
 ## SavedVariablesPerCharacter: DoTimer_Settings
 SpellSystem\SpellSystem.xml
 DoTimer\DoTimer.xml

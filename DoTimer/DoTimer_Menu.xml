@@ -1,4 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+
+	<Script file="Localization.lua"/>
+	<Script file="Localization.ruRU.lua"/>
+
 	<Slider name="DoTimerSliderTemplate" virtual="true" orientation="HORIZONTAL" enableMouse="true">
 		<Size>
 			<AbsDimension x="128" y="17"/>
@@ -124,7 +128,7 @@
 	</CheckButton>
 	<Button name="DoTimerButtonTemplate" virtual="true">
 		<Size>
-			<AbsDimension x="120" y="21"/>
+			<AbsDimension x="140" y="21"/>
 		</Size>
 		<ButtonText name="$parentText"/>
 		<NormalFont inherits="GameFontNormal"/>
@@ -223,14 +227,14 @@
 	<Frame name="DoTimerMenuFrame" hidden="true" parent="UIParent" enableMouse="true" movable="true" frameStrata="DIALOG">
 		<TitleRegion setAllPoints="true"/>
 		<Size>
-			<AbsDimension x="550" y="465"/>
+			<AbsDimension x="580" y="465"/>
 		</Size>
 		<Anchors> 
 			<Anchor point="CENTER"/>
 		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<FontString name="$parentTitle" inherits="GameFontHighlight" text="DoTimer Main Menu">
+				<FontString name="$parentTitle" inherits="GameFontHighlight" text="DOTIMER_MENU_TITLE">
 					<Anchors>
 						<Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT">
 							<Offset>
@@ -263,11 +267,11 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Changes the relative size of the interface, default value: 1.";
-						DoTimerScaleSliderText:SetText("Scale"); 
-						DoTimerScaleSliderLow:SetText(".5"); 
+						this.tooltipText = DOTIMER_MENU_SCALE_TOOLTIP;
+						DoTimerScaleSliderText:SetText(DOTIMER_MENU_SCALE); 
+						DoTimerScaleSliderLow:SetText("0.5"); 
 						DoTimerScaleSliderHigh:SetText("1.5"); 
-						this:SetMinMaxValues(.5,1.5); 
+						this:SetMinMaxValues(0.5,1.5); 
 						this:SetValueStep(.05);		
 					</OnLoad>
 				</Scripts>
@@ -282,11 +286,11 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Changes the relative size of the debuff icons of the interface, default value: 1.";
-						DoTimerButtonScaleSliderText:SetText("Button Scale"); 
-						DoTimerButtonScaleSliderLow:SetText(".5"); 
+						this.tooltipText = DOTIMER_MENU_BUTTON_SCALE_TOOLTIP;
+						DoTimerButtonScaleSliderText:SetText(DOTIMER_MENU_BUTTON_SCALE); 
+						DoTimerButtonScaleSliderLow:SetText("0.5"); 
 						DoTimerButtonScaleSliderHigh:SetText("1.5"); 
-						this:SetMinMaxValues(.5,1.5); 
+						this:SetMinMaxValues(0.5,1.5); 
 						this:SetValueStep(.05);		
 					</OnLoad>
 				</Scripts>
@@ -301,8 +305,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Sets the maximum number of target tables that can be shown, default value: 5.";
-						DoTimerMaxTargetsSliderText:SetText("Max Targets"); 
+						this.tooltipText = DOTIMER_MENU_MAX_TARGETS_TOOLTIP;
+						DoTimerMaxTargetsSliderText:SetText(DOTIMER_MENU_MAX_TARGETS); 
 						DoTimerMaxTargetsSliderLow:SetText("1"); 
 						DoTimerMaxTargetsSliderHigh:SetText("10"); 
 						this:SetMinMaxValues(1,10); 
@@ -320,8 +324,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Sets the maximum number of debuffs per target table that can be shown, default value: 8.";
-						DoTimerMaxDebuffsSliderText:SetText("Max Debuffs"); 
+						this.tooltipText = DOTIMER_MENU_MAX_DEBUFFS_TOOLTIP;
+						DoTimerMaxDebuffsSliderText:SetText(DOTIMER_MENU_MAX_DEBUFFS); 
 						DoTimerMaxDebuffsSliderLow:SetText("1"); 
 						DoTimerMaxDebuffsSliderHigh:SetText("20"); 
 						this:SetMinMaxValues(1,20); 
@@ -339,13 +343,13 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if the timers will be displayed as bars or icons, default icons.";
-						DoTimerFormatSliderText:SetText("Timer Format"); 
-						DoTimerFormatSliderLow:SetText("bars"); 
-						DoTimerFormatSliderHigh:SetText("icons"); 
+						this.tooltipText = DOTIMER_MENU_TIMER_FORMAT_TOOLTIP;
+						DoTimerFormatSliderText:SetText(DOTIMER_MENU_TIMER_FORMAT); 
+						DoTimerFormatSliderLow:SetText(DOTIMER_MENU_BARS); 
+						DoTimerFormatSliderHigh:SetText(DOTIMER_MENU_ICONS); 
 						this:SetMinMaxValues(1,2); 
 						this:SetValueStep(1);		
-						this.values = {[1] = "bars",[2] = "icons",["bars"] = 1,["icons"] = 2}
+						this.values = {[1] = "bars",[2] = "icons",["bars"] = 1,["icons"] = 2,}
 					</OnLoad>
 					<OnValueChanged> DoTimerFormatSliderValue:SetText(this.values[this:GetValue()]); </OnValueChanged>
 				</Scripts>
@@ -360,10 +364,10 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Sets the direction in which new target tables are added, default value: left.";
-						DoTimerTargetLayoutSliderText:SetText("Target Layout"); 
-						DoTimerTargetLayoutSliderLow:SetText("up"); 
-						DoTimerTargetLayoutSliderHigh:SetText("right"); 
+						this.tooltipText = DOTIMER_MENU_TARGET_LAYOUT_TOOLTIP;
+						DoTimerTargetLayoutSliderText:SetText(DOTIMER_MENU_TARGET_LAYOUT); 
+						DoTimerTargetLayoutSliderLow:SetText(DOTIMER_MENU_UP); 
+						DoTimerTargetLayoutSliderHigh:SetText(DOTIMER_MENU_RIGHT); 
 						this:SetMinMaxValues(1,4); 
 						this:SetValueStep(1);	
 						this.values = {[1] = "up",[2] = "down",[3] = "left",[4] = "right",["up"] = 1,["down"] = 2,["left"] = 3,["right"] = 4,}
@@ -381,10 +385,10 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Sets the direction in which new debuff icons are added, default value: down.";
-						DoTimerDebuffLayoutSliderText:SetText("Debuff Layout"); 
-						DoTimerDebuffLayoutSliderLow:SetText("up"); 
-						DoTimerDebuffLayoutSliderHigh:SetText("right"); 
+						this.tooltipText = DOTIMER_MENU_DEBUFF_LAYOUT_TOOLTIP;
+						DoTimerDebuffLayoutSliderText:SetText(DOTIMER_MENU_DEBUFF_LAYOUT); 
+						DoTimerDebuffLayoutSliderLow:SetText(DOTIMER_MENU_UP); 
+						DoTimerDebuffLayoutSliderHigh:SetText(DOTIMER_MENU_RIGHT); 
 						this:SetMinMaxValues(1,4); 
 						this:SetValueStep(1);	
 						this.values = {[1] = "up",[2] = "down",[3] = "left",[4] = "right",["up"] = 1,["down"] = 2,["left"] = 3,["right"] = 4,}
@@ -402,10 +406,10 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Sets the manner in which debuffs are sorted: time added or time remaining, default value: remaining.";
-						DoTimerDebuffSortSliderText:SetText("Debuff Sort"); 
-						DoTimerDebuffSortSliderLow:SetText("added"); 
-						DoTimerDebuffSortSliderHigh:SetText("remaining"); 
+						this.tooltipText = DOTIMER_MENU_DEBUFF_SORT_TOOLTIP;
+						DoTimerDebuffSortSliderText:SetText(DOTIMER_MENU_DEBUFF_SORT); 
+						DoTimerDebuffSortSliderLow:SetText(DOTIMER_MENU_ADDED); 
+						DoTimerDebuffSortSliderHigh:SetText(DOTIMER_MENU_REMAINING); 
 						this:SetMinMaxValues(1,2); 
 						this:SetValueStep(1);	
 						this.values = {[1] = "added",[2] = "remaining",["added"] = 1,["remaining"] = 2,}
@@ -423,8 +427,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines how long the timer bars are, default 150.";
-						DoTimerBarLengthSliderText:SetText("Bar Length"); 
+						this.tooltipText = DOTIMER_MENU_BAR_LENGHT_TOOLTIP;
+						DoTimerBarLengthSliderText:SetText(DOTIMER_MENU_BAR_LENGHT); 
 						DoTimerBarLengthSliderLow:SetText("50"); 
 						DoTimerBarLengthSliderHigh:SetText("250"); 
 						this:SetMinMaxValues(50,250); 
@@ -443,8 +447,8 @@
 				<Scripts>
 					<OnLoad> 
 						this.text = ""
-						this.tooltipText = "Sets debug messages.  \"off\" for none, \"on\" for default frame, or a number representing the chat frame to send the messages." 
-						DoTimerDebugEditBoxText:SetText("Debugging"); 
+						this.tooltipText = DOTIMER_MENU_DEBUGGING_TOOLTIP;
+						DoTimerDebugEditBoxText:SetText(DOTIMER_MENU_DEBUGGING); 
 					</OnLoad>
 				</Scripts>
 			</Editbox>
@@ -459,8 +463,8 @@
 				<Scripts>
 					<OnLoad> 
 						this.text = ""
-						this.tooltipText = "Sets on which mobs immolate will be ignored in the macro functions.  Press ENTER after typing in a name to add it to the list, or ESCAPE to remove it.  Current List:" 
-						DoTimerPreventImmolEditBoxText:SetText("Prevent Immolate"); 
+						this.tooltipText = DOTIMER_MENU_PREVENT_IMMOLATE_TOOLTIP;
+						DoTimerPreventImmolEditBoxText:SetText(DOTIMER_MENU_PREVENT_IMMOLATE); 
 					</OnLoad>
 					<OnEnter>
 						local text = this.tooltipText
@@ -492,8 +496,8 @@
 				<Scripts>
 					<OnLoad> 
 						this.text = ""
-						this.tooltipText = "Sets the rank of Life Tap to be used with the mana check feature.  Enter a number for a specific rank, or \"max\" for the max rank, whatever it is, default value: max." 
-						DoTimerLifeTapEditBoxText:SetText("Life Tap Rank"); 
+						this.tooltipText = DOTIMER_MENU_LIFE_TAP_RANK_TOOLTIP;
+						DoTimerLifeTapEditBoxText:SetText(DOTIMER_MENU_LIFE_TAP_RANK); 
 					</OnLoad>
 				</Scripts>
 			</Editbox>
@@ -507,8 +511,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Turns the addon on or off, default state: on.";
-						DoTimerEnabledCheckButtonText:SetText("Enabled"); 
+						this.tooltipText = DOTIMER_MENU_ENABLED_TOOLTIP;
+						DoTimerEnabledCheckButtonText:SetText(DOTIMER_MENU_ENABLED); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -522,8 +526,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if timers will appear onscreen, default state: shown.";
-						DoTimerVisibleCheckButtonText:SetText("Visible UI"); 
+						this.tooltipText = DOTIMER_MENU_VISIBLE_UI_TOOLTIP;
+						DoTimerVisibleCheckButtonText:SetText(DOTIMER_MENU_VISIBLE_UI); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -537,8 +541,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Locks the addon, hiding the drag icon, default state: unlocked.";
-						DoTimerLockedCheckButtonText:SetText("Locked"); 
+						this.tooltipText = DOTIMER_MENU_LOCKED_TOOLTIP;
+						DoTimerLockedCheckButtonText:SetText(DOTIMER_MENU_LOCKED); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -552,8 +556,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Toggles the showing of target names, default state: shown.";
-						DoTimerNamesCheckButtonText:SetText("Showing Target Names"); 
+						this.tooltipText = DOTIMER_MENU_SHOWING_TARGET_NAMES_TOOLTIP;
+						DoTimerNamesCheckButtonText:SetText(DOTIMER_MENU_SHOWING_TARGET_NAMES); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -567,8 +571,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Toggles the showing of target levels next to their names, default state: shown.";
-						DoTimerLevelsCheckButtonText:SetText("Showing Target Levels"); 
+						this.tooltipText = DOTIMER_MENU_SHOWING_TARGET_LEVELS_TOOLTIP;
+						DoTimerLevelsCheckButtonText:SetText(DOTIMER_MENU_SHOWING_TARGET_LEVELS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -582,8 +586,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if timer text turns red and the timer icon highlights for 2 seconds at less than 5 seconds remaining, default state: on.";
-						DoTimerExpAlertCheckButtonText:SetText("Expiration Alerts"); 
+						this.tooltipText = DOTIMER_MENU_EXPIRATION_ALERTS_TOOLTIP;
+						DoTimerExpAlertCheckButtonText:SetText(DOTIMER_MENU_EXPIRATION_ALERTS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -597,8 +601,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if debuffs can be clicked: click to target, shift+click to remove, control+click to make ghost timer, default state: on.";
-						DoTimerClickableCheckButtonText:SetText("Clickable Debuffs"); 
+						this.tooltipText = DOTIMER_MENU_CLICKABLE_DEBUFFS_TOOLTIP;
+						DoTimerClickableCheckButtonText:SetText(DOTIMER_MENU_CLICKABLE_DEBUFFS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -612,8 +616,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if debuffs will become depreciated if the addon can't find them on the target, default state: on.";
-						DoTimerDepCheckButtonText:SetText("Depreciated Timers"); 
+						this.tooltipText = DOTIMER_MENU_DEPRECIATED_TIMERS_TOOLTIP;
+						DoTimerDepCheckButtonText:SetText(DOTIMER_MENU_DEPRECIATED_TIMERS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -627,8 +631,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if the macro functions will include depreciated timers in their scans, default state: on.";
-						DoTimerProbableCheckButtonText:SetText("Include Probable Timers"); 
+						this.tooltipText = DOTIMER_MENU_INCLUDE_PORTABLE_TIMERS_TOOLTIP;
+						DoTimerProbableCheckButtonText:SetText(DOTIMER_MENU_INCLUDE_PORTABLE_TIMERS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -642,8 +646,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if Life Tap will be cast automatically if you don't have the mana for the attempted spell, default state: off.";
-						DoTimerManaCheckButtonText:SetText("Mana Check"); 
+						this.tooltipText = DOTIMER_MENU_MANA_CHECK_TOOLTIP;
+						DoTimerManaCheckButtonText:SetText(DOTIMER_MENU_MANA_CHECK); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -657,8 +661,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if only timers for your current target will be shown (the others will be tracked, but hidden), default state: off.";
-						DoTimerOnlyTargetCheckButtonText:SetText("Show Only Target"); 
+						this.tooltipText = DOTIMER_MENU_SHOW_ONLY_TARGET_TOOLTIP;
+						DoTimerOnlyTargetCheckButtonText:SetText(DOTIMER_MENU_SHOW_ONLY_TARGET); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -672,8 +676,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if a sound will be played when a timer hits five seconds left, default state: off.";
-						DoTimerPlaySoundsCheckButtonText:SetText("Play Sounds"); 
+						this.tooltipText = DOTIMER_MENU_PLAY_SOUNDS_TOOLTIP;
+						DoTimerPlaySoundsCheckButtonText:SetText(DOTIMER_MENU_PLAY_SOUNDS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -687,15 +691,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Resets all settings to their default value." 
-						DoTimerResetButtonText:SetText("Reset"); 
+						this.tooltipText = DOTIMER_MENU_RESET_TOOLTIP 
+						DoTimerResetButtonText:SetText(DOTIMER_MENU_RESET); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("reset"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerResetPositionButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerResetButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerResetButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -703,15 +707,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Resets the position of the drag icon to the middle of the screen." 
-						DoTimerResetPositionButtonText:SetText("Reset Position"); 
+						this.tooltipText = DOTIMER_MENU_RESET_POSITION_TOOLTIP 
+						DoTimerResetPositionButtonText:SetText(DOTIMER_MENU_RESET_POSITION); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("reset position"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerOtherCommandsButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerResetPositionButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerResetPositionButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -719,15 +723,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Prints in the chat frame all commands not available to the menu." 
-						DoTimerOtherCommandsButtonText:SetText("Other Cmds"); 
+						this.tooltipText = DOTIMER_MENU_OTHER_CMD_TOOLTIP
+						DoTimerOtherCommandsButtonText:SetText(DOTIMER_MENU_OTHER_CMD); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("help other cmds"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerAuthorInfoButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerOtherCommandsButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerOtherCommandsButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -735,15 +739,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Prints in the chat frame information about the current version and about the author." 
-						DoTimerAuthorInfoButtonText:SetText("Author Info"); 
+						this.tooltipText = DOTIMER_MENU_AUTHOR_INFO_TOOLTIP 
+						DoTimerAuthorInfoButtonText:SetText(DOTIMER_MENU_AUTHOR_INFO); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("help version"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerInformationButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerAuthorInfoButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerAuthorInfoButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -751,15 +755,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Prints in the chat frame information about some of this mod's features." 
-						DoTimerInformationButtonText:SetText("Information"); 
+						this.tooltipText = DOTIMER_MENU_INFORMATION_TOOLTIP 
+						DoTimerInformationButtonText:SetText(DOTIMER_MENU_INFORMATION); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("help info"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerBeginnerButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerInformationButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerInformationButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -767,15 +771,15 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Prints in the chat frame basic info about the mod, for beginners." 
-						DoTimerBeginnerButtonText:SetText("Beginners"); 
+						this.tooltipText = DOTIMER_MENU_BEGINNERS_TOOLTIP
+						DoTimerBeginnerButtonText:SetText(DOTIMER_MENU_BEGINNERS); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("help new"); </OnClick>
 				</Scripts>
 			</Button>
 			<Button name="DoTimerExampleMacrosButton" inherits="DoTimerButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerBeginnerButton">
+					<Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" relativeTo="DoTimerBeginnerButton">
 						<Offset>
 							<AbsDimension x="0" y="-10"/>
 						</Offset>
@@ -783,8 +787,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Prints in the chat frame some example macros using the macro functions provided by this mod." 
-						DoTimerExampleMacrosButtonText:SetText("Example Macros"); 
+						this.tooltipText = DOTIMER_MENU_EXAMPLE_MACROS_TOOLTIP 
+						DoTimerExampleMacrosButtonText:SetText(DOTIMER_MENU_EXAMPLE_MACROS); 
 					</OnLoad>
 					<OnClick> DoTimer_Commands("help macros"); </OnClick>
 				</Scripts>
@@ -793,14 +797,14 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="DoTimerExampleMacrosButton">
 						<Offset>
-							<AbsDimension x="0" y="-10"/>
+							<AbsDimension x="-20" y="-10"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if ghost timers will be separated a bit from other timers, default state: on.";
-						DoTimerSepGhostCheckButtonText:SetText("Sep. Ghosts"); 
+						this.tooltipText = DOTIMER_MENU_SEP_GHOSTS_TOOLTIP;
+						DoTimerSepGhostCheckButtonText:SetText(DOTIMER_MENU_SEP_GHOSTS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>			
@@ -814,8 +818,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if ghost timers will automatically be created and removed, default state: off.";
-						DoTimerAllGhostCheckButtonText:SetText("Auto Ghosts"); 
+						this.tooltipText = DOTIMER_MENU_AUTO_GHOSTS_TOOLTIP;
+						DoTimerAllGhostCheckButtonText:SetText(DOTIMER_MENU_AUTO_GHOSTS); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>
@@ -829,8 +833,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Determines if conflagrate will be cast instead of immolate for its ghost timer, or Swiftmend for Rejuvenation, default state: off.";
-						DoTimerForceConflagCheckButtonText:SetText("Ghost Conflag"); 
+						this.tooltipText = DOTIMER_MENU_GHOST_CONFLAG_TOOLTIP;
+						DoTimerForceConflagCheckButtonText:SetText(DOTIMER_MENU_GHOST_CONFLAG); 
 					</OnLoad>
 				</Scripts>
 			</CheckButton>		
@@ -844,8 +848,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Closes the menu and applies all changes made." 
-						DoTimerDoneButtonText:SetText("Done"); 
+						this.tooltipText = DOTIMER_MENU_DONE_TOOLTIP 
+						DoTimerDoneButtonText:SetText(DOTIMER_MENU_DONE); 
 					</OnLoad>
 					<OnClick> DoTimer_ParseMenuData(); DoTimerMenuFrame:Hide(); </OnClick>
 				</Scripts>
@@ -860,8 +864,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Closes the window without making any changes." 
-						DoTimerCancelButtonText:SetText("Cancel"); 
+						this.tooltipText = DOTIMER_MENU_CANCEL_TOOLTIP
+						DoTimerCancelButtonText:SetText(DOTIMER_MENU_CANCEL); 
 					</OnLoad>
 					<OnClick> DoTimerMenuFrame:Hide(); </OnClick>
 				</Scripts>
@@ -876,8 +880,8 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad> 
-						this.tooltipText = "Applies all changes made without closing the window." 
-						DoTimerApplyButtonText:SetText("Apply"); 
+						this.tooltipText = DOTIMER_MENU_APPLY_TOOLTIP 
+						DoTimerApplyButtonText:SetText(DOTIMER_MENU_APPLY); 
 					</OnLoad>
 					<OnClick> DoTimer_ParseMenuData(); </OnClick>
 				</Scripts>
